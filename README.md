@@ -12,7 +12,7 @@ EXAMPLE
 This is probably simplest to illustrate in code:
 
 ```go
-values := map[string]interface{}
+values := make(map[string]interface{})
 values["a"] = 5
 result := gostr.Evaluate("a * 2", values)
 fmt.Println("Result:", result)
@@ -26,6 +26,7 @@ result := gostr.Evaluate("(a + 3) * 2", values)
 fmt.Println("Result:", result)
 #=> Result: 16
 ```
+I have added some simple examples. Run [example.go](https://github.com/pk-rawat/gostr/blob/master/examples/example.go) to check those.
 
 BUILT-IN OPERATORS AND FUNCTIONS
 ---------------------------------
@@ -34,4 +35,4 @@ Math: `+ - * /`
 
 Logic: `< > <= >= <> != = AND OR`
 
-Functions: `ISBLANK LENGTH NOT`
+Functions: `ISBLANK LENGTH NOT ROUND`
