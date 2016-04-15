@@ -6,6 +6,7 @@ import (
 	"unicode"
 )
 
+// Includes check value in slice
 func Includes(array []rune, value rune) bool {
 	for _, item := range array {
 		if item == value {
@@ -15,12 +16,13 @@ func Includes(array []rune, value rune) bool {
 	return false
 }
 
+// Parser parse query string and return parsed stack
 func Parser(query string) Stack {
 	tokens := Stack{}
 	matchstr := Stack{}
 	var curr rune
 	var next rune
-	buff := make([]rune, 0)
+	var buff []rune
 	for i := 0; i < len(query); i++ {
 		curr = rune(query[i])
 		if i < len(query)-1 {
@@ -56,10 +58,10 @@ func Parser(query string) Stack {
 			if next != 10000 && (unicode.IsLetter(next) || next == '_' || curr == '_') {
 				continue
 			} else {
-				if string(buff) == "LEN" || string(buff) == "ISBLANK" || string(buff) == "ISNULL" || string(buff) == "NOT" || string(buff) == "DAY" || string(buff) == "MONTH" || string(buff) == "PV" {
+				if string(buff) == "LEN" || string(buff) == "ISBLANK" || string(buff) == "ISNULL" || string(buff) == "NOT" || string(buff) == "DAY" || string(buff) == "MONTH" || string(buff) == "ROUND" {
 					tokens.Push(Token{Function, string(buff), Stack{}})
 					buff = nil
-				} else if string(buff) == "AND" || string(buff) == "OR" {
+				} else if string(buff) == "AND" || string(buff) == "OR" || string(buff) == "and" || string(buff) == "or" {
 					tokens.Push(Token{Operator, string(buff), Stack{}})
 					buff = nil
 				} else if string(buff) == "TODAY" {
@@ -132,6 +134,7 @@ func Parser(query string) Stack {
 	return tokens
 }
 
+// IsOperator check for Operator symbol
 func IsOperator(r rune) bool {
 	if r == '+' || r == '-' || r == '/' || r == '*' {
 		return true
@@ -139,6 +142,7 @@ func IsOperator(r rune) bool {
 	return false
 }
 
+// IsComparator check for Comparator symbol
 func IsComparator(r rune) bool {
 	if r == '=' || r == '>' || r == '<' {
 		return true

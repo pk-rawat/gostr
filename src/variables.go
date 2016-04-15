@@ -1,18 +1,22 @@
-package gostr
+package evaluator
 
 import (
 	"math"
 	"strconv"
+	"strings"
 )
 
+// Token is a object struct for used token in stack
 type Token struct {
 	Type   TokenType
 	Lexeme string
 	Value  Stack
 }
 
+// TokenType is used as byte
 type TokenType byte
 
+// const declare used constant for tokens
 const (
 	Number TokenType = iota
 	Boolean
@@ -28,6 +32,7 @@ const (
 	Comma
 )
 
+// Stack is a collection of Tokens
 type Stack struct {
 	Values []Token
 }
@@ -50,14 +55,18 @@ var oprData = map[string]struct {
 	"!>":  {2, false, func(x, y float64) interface{} { return true }},
 	"<>":  {2, false, func(x, y float64) interface{} { return true }},
 	"AND": {0, false, func(x, y float64) interface{} { return true }},
+	"and": {0, false, func(x, y float64) interface{} { return true }},
 	"OR":  {0, false, func(x, y float64) interface{} { return true }},
+	"or":  {0, false, func(x, y float64) interface{} { return true }},
 }
 
 var cmpData = map[string]struct {
 	fx func(x, y bool) interface{}
 }{
 	"AND": {func(x, y bool) interface{} { return x && y }},
+	"and": {func(x, y bool) interface{} { return x && y }},
 	"OR":  {func(x, y bool) interface{} { return x || y }},
+	"or":  {func(x, y bool) interface{} { return x || y }},
 }
 
 var chkData = map[string]struct {
@@ -67,113 +76,112 @@ var chkData = map[string]struct {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
-			return x == y
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a == b
+			return strings.EqualFold(x.(string), y.(string))
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a == b
 	}},
 	"!=": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
-			return x != y
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a != b
+			return !strings.EqualFold(x.(string), y.(string))
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a != b
 	}},
 	"<>": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
-			return x != y
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a != b
+			return !strings.EqualFold(x.(string), y.(string))
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a != b
 	}},
 	">": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
 			return false
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a > b
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a > b
 	}},
 	"<": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
 			return false
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a < b
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a < b
 	}},
 	">=": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
 			return false
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a >= b
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a >= b
 	}},
 	"<=": {func(x, y interface{}) interface{} {
 		a, err := strconv.ParseFloat(x.(string), 64)
 		b, err := strconv.ParseFloat(y.(string), 64)
 		if err != nil {
 			return false
-		} else {
-			a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
-			b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
-			return a <= b
 		}
+		a, err = strconv.ParseFloat(strconv.FormatFloat(a, 'f', 2, 64), 64)
+		b, err = strconv.ParseFloat(strconv.FormatFloat(b, 'f', 2, 64), 64)
+		return a <= b
 	}},
 }
 
-func (self *Stack) Push(i ...Token) {
-	self.Values = append(self.Values, i...)
+// Push insert tokens to stack
+func (stack *Stack) Push(i ...Token) {
+	stack.Values = append(stack.Values, i...)
 }
 
-func (self *Stack) Pop() Token {
-	if len(self.Values) == 0 {
+// Pop remove last token from stack
+func (stack *Stack) Pop() Token {
+	if len(stack.Values) == 0 {
 		return Token{}
 	}
-	token := self.Values[len(self.Values)-1]
-	self.Values = self.Values[:len(self.Values)-1]
+	token := stack.Values[len(stack.Values)-1]
+	stack.Values = stack.Values[:len(stack.Values)-1]
 	return token
 }
 
-func (self *Stack) Peek() Token {
-	if len(self.Values) == 0 {
+// Peek return last token of stack
+func (stack *Stack) Peek() Token {
+	if len(stack.Values) == 0 {
 		return Token{}
 	}
-	return self.Values[len(self.Values)-1]
+	return stack.Values[len(stack.Values)-1]
 }
 
-func (self *Stack) EmptyInto(s *Stack) {
-	if !self.IsEmpty() {
-		for i := self.Length() - 1; i >= 0; i-- {
-			s.Push(self.Pop())
+// EmptyInto move tokens to another stack
+func (stack *Stack) EmptyInto(s *Stack) {
+	if !stack.IsEmpty() {
+		for i := stack.Length() - 1; i >= 0; i-- {
+			s.Push(stack.Pop())
 		}
 	}
 }
 
-func (self *Stack) IsEmpty() bool {
-	return len(self.Values) == 0
+// IsEmpty check for empty stack
+func (stack *Stack) IsEmpty() bool {
+	return len(stack.Values) == 0
 }
 
-func (self *Stack) Length() int {
-	return len(self.Values)
+// Length return count of tokens
+func (stack *Stack) Length() int {
+	return len(stack.Values)
 }

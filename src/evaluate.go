@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Evaluate return result as interface
 func Evaluate(query string, values map[string]interface{}) interface{} {
 	tokens := Parser(query)
 	rpn := ToPostfix(tokens)
@@ -16,6 +17,7 @@ func Evaluate(query string, values map[string]interface{}) interface{} {
 	return outs
 }
 
+// ToPostfix convert parsed tokens to postfix i.e "2", "+", "4" => "2", "4", "+"
 func ToPostfix(tokens Stack) Stack {
 	ops := Stack{}
 	output := Stack{}
@@ -53,7 +55,7 @@ func ToPostfix(tokens Stack) Stack {
 				closeparen := 0
 				for i := tok.Value.Length() - 1; i >= 0; i-- {
 					if tok.Value.Values[i].Type == RParen {
-						closeparen += 1
+						closeparen++
 					}
 					if tok.Value.Values[i].Type != LParen {
 						continue
@@ -154,9 +156,9 @@ func SolvePostfix(tokens Stack, vars map[string]interface{}) interface{} {
 // SolveFunction returns the answer of a function found within an expression
 func SolveFunction(v Token, vars map[string]interface{}, stack Stack) Stack {
 	var value interface{}
-	fun_tokens := v.Value
-	if fun_tokens.Length() > 1 && v.Lexeme != "PV" {
-		toks := ToPostfix(fun_tokens)
+	funTokens := v.Value
+	if funTokens.Length() > 1 && v.Lexeme != "PV" {
+		toks := ToPostfix(funTokens)
 		if toks.Length() > 0 {
 			value = SolvePostfix(toks, vars)
 		}
@@ -192,42 +194,56 @@ func SolveFunction(v Token, vars map[string]interface{}, stack Stack) Stack {
 		} else {
 			stack.Push(Token{Boolean, strconv.FormatBool(true), Stack{}})
 		}
-	} else if v.Lexeme == "PV" {
-		var rate, time, pmt float64
+	} else if v.Lexeme == "ROUND" {
+		var number, precision float64
 		var ok error
+		count := 0
+		stk := Stack{}
 		toks := ToPostfix(v.Value)
-		for index, item := range toks.Values {
-			stk := Stack{}
-			stk.Push(item)
-			switch index {
-			case 0:
-				val := SolvePostfix(stk, vars)
-				rate, ok = strconv.ParseFloat(val.(string), 64)
-				if ok != nil {
-					fmt.Println("Error:", ok)
+		for _, item := range toks.Values {
+			if item.Lexeme != "," {
+				stk.Push(item)
+			} else {
+				if count == 0 {
+					val := SolvePostfix(stk, vars)
+					number, ok = strconv.ParseFloat(val.(string), 64)
+					if ok != nil {
+						fmt.Println("Error:", ok)
+					}
+				} else if count == 1 {
+					val := SolvePostfix(stk, vars)
+					precision, ok = strconv.ParseFloat(val.(string), 64)
+					if ok != nil {
+						fmt.Println("Error:", ok)
+					}
 				}
-			case 2:
-				val := SolvePostfix(stk, vars)
-				time, ok = strconv.ParseFloat(val.(string), 64)
-				if ok != nil {
-					fmt.Println("Error:", ok)
-				}
-			case 4:
-				val := SolvePostfix(stk, vars)
-				pmt, ok = strconv.ParseFloat(val.(string), 64)
-				if ok != nil {
-					fmt.Println("Error:", ok)
-				}
+				count++
+				stk = Stack{}
 			}
 		}
-		v := math.Pow((1 + rate), -time)
-		pv := pmt * ((1 - v) / rate)
-		str := strconv.FormatFloat(pv, 'f', 2, 64)
+		if count == 0 {
+			val := SolvePostfix(stk, vars)
+			number, ok = strconv.ParseFloat(val.(string), 64)
+			if ok != nil {
+				fmt.Println("Error:", ok)
+			}
+		} else if count == 1 {
+			val := SolvePostfix(stk, vars)
+			precision, ok = strconv.ParseFloat(val.(string), 64)
+			if ok != nil {
+				fmt.Println("Error:", ok)
+			}
+		}
+		output := math.Pow(10, float64(precision))
+		result := number*output + math.Copysign(0.5, number*output)
+		result = float64(int(result)) / output
+		str := strconv.FormatFloat(result, 'f', int(precision), 64)
 		stack.Push(Token{Number, str, Stack{}})
 	}
 	return stack
 }
 
+// PushStringToStack push interface to stack and return resulted Stack
 func PushStringToStack(data interface{}, stack Stack) Stack {
 	switch reflect.TypeOf(data).Kind() {
 	case reflect.Int:
