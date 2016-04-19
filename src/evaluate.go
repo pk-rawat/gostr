@@ -246,6 +246,24 @@ func SolveFunction(v Token, vars map[string]interface{}, stack Stack) Stack {
 // PushStringToStack push interface to stack and return resulted Stack
 func PushStringToStack(data interface{}, stack Stack) Stack {
 	switch reflect.TypeOf(data).Kind() {
+	case reflect.Uint8:
+		stack.Push(Token{Number, strconv.FormatUint(uint64(data.(uint8)), 10), Stack{}})
+	case reflect.Uint16:
+		stack.Push(Token{Number, strconv.FormatUint(uint64(data.(uint16)), 10), Stack{}})
+	case reflect.Uint32:
+		stack.Push(Token{Number, strconv.FormatUint(uint64(data.(uint32)), 10), Stack{}})
+	case reflect.Uint64:
+		stack.Push(Token{Number, strconv.FormatUint(data.(uint64), 10), Stack{}})
+	case reflect.Uint:
+		stack.Push(Token{Number, strconv.FormatUint(uint64(data.(uint)), 10), Stack{}})
+	case reflect.Int8:
+		stack.Push(Token{Number, strconv.FormatInt(int64(data.(int8)), 10), Stack{}})
+	case reflect.Int16:
+		stack.Push(Token{Number, strconv.FormatInt(int64(data.(int16)), 10), Stack{}})
+	case reflect.Int32:
+		stack.Push(Token{Number, strconv.FormatInt(int64(data.(int32)), 10), Stack{}})
+	case reflect.Int64:
+		stack.Push(Token{Number, strconv.FormatInt(data.(int64), 10), Stack{}})
 	case reflect.Int:
 		stack.Push(Token{Number, strconv.Itoa(data.(int)), Stack{}})
 	case reflect.Float64:
