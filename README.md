@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/pk-rawat/gostr.svg?branch=master)](https://travis-ci.org/pk-rawat/gostr)
-[![wercker status](https://app.wercker.com/status/b802ff3c540c1ea9ab3c047db8c1d725/s/master "wercker
+[![wercker status](https://app.wercker.com/status/b802ff3c540c1ea9ab3c047db8c1d725/s/master "wercker status")](https://app.wercker.com/project/bykey/b802ff3c540c1ea9ab3c047db8c1d725)
 
 gostr
 =======
