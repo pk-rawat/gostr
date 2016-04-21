@@ -163,7 +163,7 @@ func SolveFunction(v Token, vars map[string]interface{}, stack Stack) Stack {
 			value = SolvePostfix(toks, vars)
 		}
 	}
-	if v.Lexeme == "LEN" {
+	if v.Lexeme == "LENGTH" {
 		stack.Push(Token{Number, strconv.Itoa(len(value.(string))), Stack{}})
 	} else if v.Lexeme == "ISBLANK" || v.Lexeme == "ISNULL" {
 		val := false

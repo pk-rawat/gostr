@@ -13,6 +13,7 @@ func main() {
 	values["c"] = 2
 	values["e"] = ""
 	values["f"] = 1203.62
+	values["g"] = "Hello World!"
 	fmt.Printf("%v\n", values)
 	query := "a * 2"
 	result := gostr.Evaluate(query, values)
@@ -50,4 +51,7 @@ func main() {
 	query = "ROUND(f)"
 	result = gostr.Evaluate(query, values)
 	fmt.Printf("Query: %s                Result: %v\n", query, result)
+	query = "LENGTH(g) * 2"
+	result = gostr.Evaluate(query, values)
+	fmt.Printf("Query: %s           Result: %v\n", query, result)
 }
